@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IX DRON — Percepción remota para tu obra y tu propiedad</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Source+Serif+4:ital,wght@0,400;0,500;1,400&family=JetBrains+Mono:wght@400;500&display=swap');
+
+  :root{
+    --bg: #131F1B;
+    --bg-deep: #0C1512;
+    --sage: #7A9686;
+    --sage-dim: #3E564A;
+    --amber: #C98A3E;
+    --amber-bright: #E8AE64;
+    --cream: #EDEAE0;
+    --cream-dim: #ADB7AC;
+    --line: rgba(237,234,224,0.13);
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{background:var(--bg); color:var(--cream); font-family:'Source Serif 4', serif; line-height:1.6; overflow-x:hidden; position:relative;}
+  h1,h2,h3,.display{font-family:'Space Grotesk',sans-serif;letter-spacing:-0.01em;}
+  .mono{font-family:'JetBrains Mono',monospace;}
+  a{color:inherit;}
+
+  .grain{
+    position:fixed; inset:0; z-index:50; pointer-events:none; opacity:0.05; mix-blend-mode:overlay;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+  .contours{position:fixed; inset:0; z-index:0; pointer-events:none; opacity:0.22;}
+  .contours svg{width:100%;height:100%;}
+  .contours path{fill:none;stroke:var(--sage-dim);stroke-width:1;}
+  .scanline{
+    position:fixed; left:0; right:0; height:140px; z-index:1; pointer-events:none;
+    background:linear-gradient(180deg, transparent, rgba(201,138,62,0.05), transparent);
+    animation:sweep 9s linear infinite;
+  }
+  @keyframes sweep{ 0%{top:-140px;} 100%{top:110vh;} }
+
+  header{
+    position:sticky; top:0; z-index:30; display:flex; justify-content:space-between; align-items:center;
+    padding:20px 5vw; background:rgba(12,21,18,0.82); backdrop-filter:blur(10px); border-bottom:1px solid var(--line);
+  }
+  .logo{font-size:1.1rem; font-weight:700; letter-spacing:0.06em; display:flex; align-items:center; gap:10px;}
+  .logo span{color:var(--amber);}
+  .logo .dot{width:6px;height:6px;border-radius:50%;background:var(--amber);animation:blink 2.4s ease-in-out infinite;}
+  @keyframes blink{0%,100%{opacity:1;}50%{opacity:0.2;}}
+  nav{display:flex;}
+  nav a{margin-left:30px; font-family:'JetBrains Mono',monospace; font-size:0.74rem; text-transform:uppercase; letter-spacing:0.08em; text-decoration:none; color:var(--cream-dim); transition:color 0.2s;}
+  nav a:hover{color:var(--amber-bright);}
+  @media (max-width:760px){ nav{display:none;} }
+
+  /* ===== HERO with video ===== */
+  .hero{ position:relative; min-height:100vh; display:flex; flex-direction:column; justify-content:flex-end; overflow:hidden; }
+  .hero-media{ position:absolute; inset:0; z-index:0; }
+  .hero-media video, .hero-media .hero-fallback{
+    position:absolute; inset:0; width:100%; height:100%; object-fit:cover;
+  }
+  .hero-fallback{ background:radial-gradient(ellipse at 30% 20%, #24382B, var(--bg) 70%); }
+  .hero-media::after{
+    content:""; position:absolute; inset:0;
+    background:linear-gradient(180deg, rgba(12,21,18,0.35) 0%, rgba(12,21,18,0.55) 55%, var(--bg) 96%);
+  }
+  .hero-inner{ position:relative; z-index:2; padding:0 5vw 90px; }
+  .eyebrow{
+    font-family:'JetBrains Mono',monospace; font-size:0.76rem; letter-spacing:0.14em; text-transform:uppercase;
+    color:var(--amber); margin-bottom:24px; display:flex; align-items:center; gap:10px;
+  }
+  .eyebrow::before{content:"";width:26px;height:1px;background:var(--amber);}
+  .hero h1{ font-size:clamp(2.6rem, 7vw, 5.2rem); font-weight:600; line-height:1.03; color:var(--cream); margin-bottom:20px; max-width:15ch; text-shadow:0 2px 24px rgba(0,0,0,0.35);}
+  .hero h1 .accent{ font-style:italic; font-family:'Source Serif 4',serif; font-weight:400; color:var(--amber-bright); }
+  .hero p.lead{ font-size:1.18rem; color:var(--cream-dim); max-width:52ch; margin-bottom:40px; }
+  .cta-row{display:flex; gap:16px; flex-wrap:wrap;}
+  .btn{ display:inline-block; padding:16px 32px; border-radius:2px; font-family:'Space Grotesk',sans-serif; font-weight:600; font-size:0.95rem; text-decoration:none; transition:all 0.2s; border:1px solid transparent; }
+  .btn-primary{background:var(--amber); color:var(--bg-deep);}
+  .btn-primary:hover{background:var(--amber-bright); transform:translateY(-2px);}
+  .btn-ghost{border-color:rgba(237,234,224,0.4); color:var(--cream);}
+  .btn-ghost:hover{border-color:var(--amber); color:var(--amber-bright); transform:translateY(-2px);}
+  .scroll-cue{
+    position:absolute; bottom:26px; right:5vw; z-index:2; font-family:'JetBrains Mono',monospace; font-size:0.68rem;
+    color:var(--cream-dim); display:flex; align-items:center; gap:8px; opacity:0.75;
+  }
+  .scroll-cue .ln{width:1px;height:26px;background:var(--cream-dim); animation:pulse 2s ease-in-out infinite;}
+  @keyframes pulse{0%,100%{opacity:0.3;}50%{opacity:1;}}
+
+  .reveal{opacity:0; transform:translateY(28px); transition:opacity 0.8s ease, transform 0.8s ease;}
+  .reveal.in{opacity:1; transform:translateY(0);}
+
+  section{position:relative; z-index:2; padding:130px 5vw; overflow:hidden;}
+  .bg-numeral{
+    position:absolute; top:40px; right:3vw; font-family:'Space Grotesk',sans-serif; font-weight:700;
+    font-size:min(22vw,260px); color:var(--cream); opacity:0.025; line-height:1; pointer-events:none; z-index:0;
+    letter-spacing:-0.04em;
+  }
+  .section-head{max-width:680px; margin-bottom:70px; position:relative; z-index:1;}
+  .section-head .tag{
+    font-family:'JetBrains Mono',monospace; font-size:0.75rem; letter-spacing:0.12em; text-transform:uppercase;
+    color:var(--amber); margin-bottom:16px; display:flex; align-items:center; gap:10px; flex-wrap:wrap;
+  }
+  .section-head .tag .coord{color:var(--sage); font-weight:400;}
+  .section-head h2{font-size:clamp(2rem,4vw,3rem); color:var(--cream); font-weight:600; line-height:1.1;}
+  .section-head p{color:var(--cream-dim); margin-top:18px; font-size:1.1rem; max-width:58ch;}
+
+  .line-block{ position:relative; z-index:1; display:grid; grid-template-columns:1fr 1fr; gap:64px; align-items:start; border-top:1px solid var(--line); padding-top:60px; }
+  @media (max-width:860px){ .line-block{grid-template-columns:1fr;} }
+
+  .sat-panel{ position:relative; aspect-ratio:4/3; overflow:hidden; border:1px solid var(--line); margin-bottom:32px; }
+  .sat-panel canvas, .sat-panel video, .sat-panel img{width:100%; height:100%; display:block; object-fit:cover;}
+  .sat-panel .frame-label{
+    position:absolute; top:14px; left:14px; font-family:'JetBrains Mono',monospace; font-size:0.62rem;
+    color:var(--cream); background:rgba(12,21,18,0.55); padding:4px 8px; letter-spacing:0.05em; z-index:2;
+  }
+  .sat-panel .frame-corner{position:absolute; width:14px; height:14px; border-color:var(--amber-bright); opacity:0.7; z-index:2;}
+  .sat-panel .fc-tl{top:10px; left:10px; border-top:2px solid; border-left:2px solid;}
+  .sat-panel .fc-br{bottom:10px; right:10px; border-bottom:2px solid; border-right:2px solid;}
+
+  .feat-list{list-style:none;}
+  .feat-list li{ display:flex; gap:18px; padding:20px 0; border-bottom:1px solid var(--line); transition:padding-left 0.25s; }
+  .feat-list li:hover{padding-left:8px;}
+  .feat-list li:first-child{padding-top:0;}
+  .feat-num{ font-family:'JetBrains Mono',monospace; color:var(--amber); font-size:0.85rem; min-width:26px; }
+  .feat-list h4{font-family:'Space Grotesk',sans-serif; color:var(--cream); font-size:1.04rem; margin-bottom:4px; font-weight:600;}
+  .feat-list p{color:var(--cream-dim); font-size:0.97rem;}
+
+  .card{ background:rgba(237,234,224,0.03); border:1px solid var(--line); padding:38px; transition:border-color 0.25s, transform 0.25s; }
+  .card:hover{border-color:var(--amber); transform:translateY(-3px);}
+  .card .quote{font-style:italic; color:var(--cream); font-size:1.18rem; line-height:1.5; margin-bottom:22px;}
+  .card .who{font-family:'JetBrains Mono',monospace; font-size:0.76rem; color:var(--sage); text-transform:uppercase; letter-spacing:0.05em;}
+  .card .cta-link{
+    display:block; margin-top:28px; padding-top:24px; border-top:1px solid var(--line);
+    font-family:'Space Grotesk',sans-serif; color:var(--amber-bright); text-decoration:none; font-weight:600; font-size:0.95rem;
+  }
+
+  /* ===== PIPELINE — Cómo trabajamos ===== */
+  .pipeline-wrap{ position:relative; z-index:1; }
+  .flightpath{ width:100%; height:120px; margin-bottom:10px; }
+  .flightpath path.route{ fill:none; stroke:var(--sage-dim); stroke-width:1.5; stroke-dasharray:4 6; }
+  .flightpath .drone{ }
+  .pipeline{ position:relative; z-index:1; display:grid; grid-template-columns:repeat(3,1fr); gap:28px; }
+  @media (max-width:860px){ .pipeline{grid-template-columns:1fr;} .flightpath{display:none;} }
+  .pn-card{ border:1px solid var(--line); background:rgba(237,234,224,0.03); padding:30px 26px; transition:border-color 0.25s, transform 0.25s; position:relative; overflow:hidden;}
+  .pn-card:hover{border-color:var(--amber); transform:translateY(-4px);}
+  .pn-code{color:var(--amber); font-size:0.68rem; letter-spacing:0.08em; display:block; margin-bottom:14px;}
+  .pn-card h4{font-family:'Space Grotesk',sans-serif; font-size:1.08rem; color:var(--cream); margin-bottom:8px;}
+  .pn-card p{font-size:0.92rem; color:var(--cream-dim); margin-bottom:16px;}
+
+  .pn-visual{ height:120px; border:1px solid var(--line); position:relative; margin-bottom:16px; background:var(--bg-deep); overflow:hidden; }
+  .pn-visual canvas{width:100%; height:100%; display:block;}
+  /* before/after wipe for "traducción visual" */
+  .wipe-wrap{ position:relative; width:100%; height:100%; cursor:ew-resize; }
+  .wipe-wrap .layer{ position:absolute; inset:0; }
+  .wipe-wrap .layer.after{ clip-path:inset(0 0 0 50%); }
+  .wipe-handle{ position:absolute; top:0; bottom:0; left:50%; width:2px; background:var(--amber-bright); }
+  .wipe-handle::after{ content:"⇔"; position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); font-size:11px; color:var(--bg-deep); background:var(--amber-bright); width:18px; height:18px; border-radius:50%; display:flex; align-items:center; justify-content:center; }
+
+  /* acompañamiento icon */
+  .accompany-icon{ display:flex; align-items:center; justify-content:center; gap:10px; height:100%; }
+  .bubble{ font-family:'JetBrains Mono',monospace; font-size:0.62rem; padding:8px 12px; border:1px solid var(--line); background:rgba(237,234,224,0.04); color:var(--cream-dim); }
+  .bubble.b2{ color:var(--amber-bright); border-color:var(--amber); }
+  .accompany-icon svg{ opacity:0.5; }
+
+  /* ===== CURSOS ===== */
+  .program-banner{
+    position:relative; z-index:1; border:1px solid var(--line); background:rgba(237,234,224,0.03);
+    padding:44px 40px; margin-bottom:56px; display:flex; justify-content:space-between; align-items:center; gap:30px; flex-wrap:wrap;
+  }
+  .program-banner h3{font-family:'Space Grotesk',sans-serif; font-size:1.5rem; color:var(--cream); max-width:22ch; line-height:1.25;}
+  .program-banner p{color:var(--cream-dim); font-size:0.98rem; max-width:36ch; margin-top:10px;}
+  .modules-grid{ position:relative; z-index:1; display:grid; grid-template-columns:repeat(3,1fr); gap:1px; background:var(--line); border:1px solid var(--line); }
+  .module-card{ background:var(--bg); padding:34px 28px; transition:background 0.25s, transform 0.25s; cursor:default; }
+  .module-card:hover{background:var(--bg-deep); transform:translateY(-2px);}
+  .module-card .m-code{color:var(--amber); font-size:0.68rem; letter-spacing:0.08em; display:block; margin-bottom:14px;}
+  .module-card h4{font-family:'Space Grotesk',sans-serif; font-size:1.02rem; color:var(--cream); margin-bottom:10px; line-height:1.3;}
+  .module-card p{color:var(--cream-dim); font-size:0.88rem;}
+  @media (max-width:860px){ .modules-grid{grid-template-columns:1fr;} }
+
+  footer{ position:relative; z-index:2; padding:110px 5vw 50px; border-top:1px solid var(--line); background:var(--bg-deep); }
+  .foot-cta h2{font-size:clamp(2rem,4.4vw,3.2rem); max-width:16ch; color:var(--cream); margin-bottom:24px;}
+  .foot-cta p{color:var(--cream-dim); max-width:52ch; margin-bottom:38px; font-size:1.1rem;}
+  .foot-bottom{ margin-top:90px; padding-top:26px; border-top:1px solid var(--line); display:flex; justify-content:space-between; flex-wrap:wrap; gap:14px; font-family:'JetBrains Mono',monospace; font-size:0.78rem; color:var(--sage); }
+</style>
+</head>
+<body>
+
+<div class="grain"></div>
+<div class="contours" id="contours"></div>
+<div class="scanline"></div>
+
+<header>
+  <div class="logo">IX <span>DRON</span><span class="dot"></span></div>
+  <nav>
+    <a href="#obra">Avance de Obra</a>
+    <a href="#inmuebles">Bienes Raíces &amp; Anfitriones</a>
+    <a href="#cursos">Cursos</a>
+    <a href="#contacto">Contacto</a>
+  </nav>
+</header>
+
+<!--
+  ================= CÓMO SUBIR TU PROPIO VIDEO DE DRON (HERO) =================
+  1. Comprime tu clip a MP4 (H.264), máximo ~8-12 segundos en loop, sin audio,
+     idealmente menos de 6-8 MB (usa HandBrake o CloudConvert para comprimir).
+  2. Ponle el nombre "hero-flight.mp4" y súbelo a la MISMA carpeta que este
+     archivo index.html (o a un hosting/CDN y pega la URL completa).
+  3. Reemplaza el atributo src="" de <source> abajo con la ruta o URL real.
+  4. Opcional: genera una imagen fija del primer frame ("hero-poster.jpg") y
+     ponla en el atributo poster="" del <video> — se ve mientras carga.
+  5. En celulares o conexiones lentas, el script al final de la página
+     detecta la pantalla/velocidad y oculta el video, dejando el fondo con
+     curvas de nivel como respaldo (ya incluido) — así no se siente pesado.
+  ================================================================================
+-->
+<section class="hero">
+  <div class="hero-media" id="hero-media">
+    <video id="hero-video" autoplay muted loop playsinline poster="">
+      <source src="" type="video/mp4">
+    </video>
+    <div class="hero-fallback" id="hero-fallback" style="display:none;"></div>
+  </div>
+  <div class="hero-inner">
+    <div class="eyebrow">Percepción remota aplicada</div>
+    <h1>Ve tu <span class="accent">obra</span> y tu <span class="accent">propiedad</span> como siempre debieron verse.</h1>
+    <p class="mono" style="color:var(--cream-dim); font-size:0.78rem; letter-spacing:0.04em; margin-bottom:22px;">[ ALT. DE VUELO: 120M · RESOLUCIÓN: 4K ]</p>
+    <p class="lead">Capturo con dron lo que el ojo desde el suelo no alcanza: el avance completo, el terreno completo, la propiedad completa. Lo convierto en un dashboard o en video que puedes usar para decidir con certeza o vender más rápido.</p>
+    <div class="cta-row">
+      <a href="#obra" class="btn btn-primary">Tengo una obra en curso</a>
+      <a href="#inmuebles" class="btn btn-ghost">Tengo una propiedad para mostrar</a>
+    </div>
+  </div>
+  <div class="scroll-cue"><span class="ln"></span>SCROLL</div>
+</section>
+
+<!-- LÍNEA 1: AVANCE DE OBRA -->
+<section id="obra">
+  <div class="bg-numeral">01</div>
+  <div class="section-head reveal">
+    <span class="tag">Línea 01 <span class="coord">// constructoras &amp; desarrolladores</span></span>
+    <h2>Controla tu obra sin pisar el terreno todos los días.</h2>
+    <p>Monitoreo aéreo periódico y ortofotos que se convierten en un dashboard de seguimiento — el avance real del proyecto siempre a la vista, con evidencia clara para justificar decisiones, tiempos y costos.</p>
+  </div>
+
+  <div class="line-block reveal">
+    <div>
+      <div class="sat-panel">
+        <canvas id="canvas-grid"></canvas>
+        <div class="frame-label mono">MONITOREO · AVANCE T+14</div>
+        <div class="frame-corner fc-tl"></div>
+        <div class="frame-corner fc-br"></div>
+      </div>
+      <ul class="feat-list">
+        <li><span class="feat-num">01</span><div><h4>Vuelos periódicos</h4><p>Semanal o quincenal, según el ritmo de tu proyecto.</p></div></li>
+        <li><span class="feat-num">02</span><div><h4>Ortofotos y comparativos</h4><p>Cada vuelo se convierte en una ortofoto del terreno — comparable en el tiempo, no fotos sueltas que se acumulan sin usarse.</p></div></li>
+        <li><span class="feat-num">03</span><div><h4>Dashboard de seguimiento</h4><p>Acceso ordenado al avance real, listo para mostrar a socios o autoridades cuando lo necesites.</p></div></li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <p class="quote">"No te dejo con archivos sueltos. Te doy una forma de ver el avance real de tu obra, comparar contra lo planeado y decidir con datos — no con visitas improvisadas."</p>
+      <p class="who">Propuesta de valor — Línea Obra</p>
+      <a href="#contacto" class="cta-link">Solicita tu monitoreo →</a>
+    </div>
+  </div>
+</section>
+
+<!-- LÍNEA 2: BIENES RAÍCES Y ANFITRIONES -->
+<section id="inmuebles" style="background:var(--bg-deep);">
+  <div class="bg-numeral">02</div>
+  <div class="section-head reveal">
+    <span class="tag">Línea 02 <span class="coord">// agentes, propietarios &amp; anfitriones</span></span>
+    <h2>Tu propiedad, mostrada como en verdad se recorre.</h2>
+    <p>Vuelo aéreo exterior más una secuencia fotográfica del interior armada como recorrido — el formato que hace que alguien se detenga a ver tu anuncio antes de seguir buscando.</p>
+  </div>
+
+  <div class="line-block reveal">
+    <div>
+      <div class="sat-panel">
+        <canvas id="canvas-forest"></canvas>
+        <div class="frame-label mono">CAPTURA · EXTERIOR + INTERIOR</div>
+        <div class="frame-corner fc-tl"></div>
+        <div class="frame-corner fc-br"></div>
+      </div>
+      <ul class="feat-list">
+        <li><span class="feat-num">01</span><div><h4>Vuelo exterior</h4><p>La propiedad, su terreno y su entorno — el contexto que una foto desde la puerta nunca muestra.</p></div></li>
+        <li><span class="feat-num">02</span><div><h4>Recorrido fotográfico POV</h4><p>Varias tomas del interior, unidas en una secuencia fluida que simula el recorrido — sin necesidad de volar dentro de la propiedad.</p></div></li>
+        <li><span class="feat-num">03</span><div><h4>Modelo 3D de la construcción</h4><p>Para obra terminada o en proceso, un modelo fotogramétrico navegable a partir de las mismas capturas.</p></div></li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <p class="quote">"No vendo un video bonito. Vendo que alguien se detenga tres segundos más antes de seguir buscando — y ese segundo es el que convierte una visita en cliente."</p>
+      <p class="who">Propuesta de valor — Línea Bienes Raíces</p>
+      <a href="#contacto" class="cta-link">Agenda tu recorrido →</a>
+    </div>
+  </div>
+</section>
+
+<!-- CÓMO TRABAJAMOS -->
+<section>
+  <div class="bg-numeral">03</div>
+  <div class="section-head reveal">
+    <span class="tag">Cómo trabajamos</span>
+    <h2>De vuelo a decisión, en tres pasos.</h2>
+  </div>
+
+  <div class="pipeline-wrap reveal">
+    <svg class="flightpath" viewBox="0 0 900 120" preserveAspectRatio="none">
+      <path class="route" d="M 40 90 Q 300 20 450 60 T 860 40" id="flight-route"/>
+      <g class="drone">
+        <path d="M-9,-9 L9,-9 M-9,9 L9,9 M0,-9 L0,9" stroke="#E8AE64" stroke-width="2" transform="scale(0.8)"/>
+        <circle r="3.2" fill="#E8AE64"/>
+        <animateMotion dur="7s" repeatCount="indefinite" rotate="auto">
+          <mpath href="#flight-route"/>
+        </animateMotion>
+      </g>
+    </svg>
+
+    <div class="pipeline">
+      <div class="pn-card">
+        <div class="pn-visual"><canvas id="canvas-capture"></canvas></div>
+        <span class="pn-code mono">01 · CAPTURA</span>
+        <h4>Monitoreo aéreo</h4>
+        <p>Vuelo con dron para capturar el estado real de tu propiedad o proyecto.</p>
+      </div>
+      <div class="pn-card">
+        <div class="pn-visual">
+          <div class="wipe-wrap" id="wipe-panel">
+            <div class="layer before"><canvas id="canvas-before"></canvas></div>
+            <div class="layer after"><canvas id="canvas-after"></canvas></div>
+            <div class="wipe-handle" id="wipe-handle"></div>
+          </div>
+        </div>
+        <span class="pn-code mono">02 · PROCESO</span>
+        <h4>Traducción visual</h4>
+        <p>Convertimos la captura en ortofoto, dashboard o video editado — desliza para ver la diferencia.</p>
+      </div>
+      <div class="pn-card">
+        <div class="pn-visual">
+          <div class="accompany-icon">
+            <span class="bubble">"¿Qué estoy viendo?"</span>
+            <svg width="18" height="18" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6" stroke="#7A9686" stroke-width="2" fill="none" stroke-linecap="round"/></svg>
+            <span class="bubble b2">Esto es tu avance real, aquí y aquí.</span>
+          </div>
+        </div>
+        <span class="pn-code mono">03 · ENTREGA</span>
+        <h4>Acompañamiento</h4>
+        <p>Te explicamos lo que estás viendo — no te dejamos solo con un archivo.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CURSOS -->
+<section id="cursos" style="background:var(--bg-deep);">
+  <div class="bg-numeral">04</div>
+  <div class="section-head reveal">
+    <span class="tag">Formación</span>
+    <h2>Te enseño a observar el terreno y convertirlo en datos.</h2>
+    <p>No solo entrego vuelos — comparto cómo se construye esta información desde cero, para quien quiera operar su propio dron, analizar sus propios datos, o simplemente decidir mejor.</p>
+  </div>
+
+  <div class="program-banner reveal">
+    <div>
+      <h3>Programa: Ver, medir, decidir.</h3>
+      <p>Un recorrido completo — de subir el dron por primera vez a automatizar tu propio análisis territorial.</p>
+    </div>
+    <a href="#contacto" class="btn btn-primary">Quiero información del programa</a>
+  </div>
+
+  <div class="modules-grid reveal">
+    <div class="module-card">
+      <span class="m-code mono">MOD-01</span>
+      <h4>Ortofotos con dron y software libre</h4>
+      <p>De la captura en campo al mosaico final, sin depender de licencias costosas para empezar.</p>
+    </div>
+    <div class="module-card">
+      <span class="m-code mono">MOD-02</span>
+      <h4>SIG y QGIS para mapeo territorial</h4>
+      <p>Organiza, analiza y presenta información geoespacial con el sistema libre más usado del mundo.</p>
+    </div>
+    <div class="module-card">
+      <span class="m-code mono">MOD-03</span>
+      <h4>Percepción remota aplicada</h4>
+      <p>Cómo leer imágenes satelitales y aéreas para extraer información que a simple vista no se ve.</p>
+    </div>
+    <div class="module-card">
+      <span class="m-code mono">MOD-04</span>
+      <h4>Ciencia de datos para terreno</h4>
+      <p>De datos crudos a decisiones — fundamentos aplicados a información territorial y ambiental.</p>
+    </div>
+    <div class="module-card">
+      <span class="m-code mono">MOD-05</span>
+      <h4>Python, SQL &amp; Google Earth Engine</h4>
+      <p>Automatiza el procesamiento de tus vuelos y consultas territoriales en vez de repetir el trabajo a mano.</p>
+    </div>
+    <div class="module-card">
+      <span class="m-code mono">MOD-06</span>
+      <h4>Proyecto final aplicado</h4>
+      <p>Llevas tu propio caso — un terreno, una obra, una parcela — de captura a reporte terminado.</p>
+    </div>
+  </div>
+</section>
+
+<footer id="contacto">
+  <div class="foot-cta reveal">
+    <h2>¿Vemos tu obra o tu propiedad desde arriba?</h2>
+    <p>Cuéntanos qué tienes en mente — una obra en curso, una propiedad para mostrar, o interés en los cursos — y te mostramos un ejemplo aplicado a tu caso, sin compromiso.</p>
+    <div class="cta-row">
+      <a href="https://wa.me/52" class="btn btn-primary">Escribir por WhatsApp</a>
+      <a href="mailto:hola@ixdron.mx" class="btn btn-ghost">hola@ixdron.mx</a>
+    </div>
+  </div>
+  <div class="foot-bottom">
+    <span>IX DRON — Percepción remota &amp; claridad visual</span>
+    <span>Ortofotos · Dashboards · Video aéreo · Formación</span>
+  </div>
+</footer>
+
+<script>
+  // Contour line background
+  (function(){
+    const container = document.getElementById('contours');
+    const svgNS = "http://www.w3.org/2000/svg";
+    const svg = document.createElementNS(svgNS, "svg");
+    svg.setAttribute("viewBox", "0 0 1200 2600");
+    svg.setAttribute("preserveAspectRatio", "none");
+    function contourPath(baseY, amp, freq, seed){
+      let d = `M -50 ${baseY}`;
+      for(let x = -50; x <= 1250; x += 30){
+        const y = baseY + Math.sin((x+seed)*freq)*amp + Math.sin((x+seed)*freq*2.3)*amp*0.4;
+        d += ` L ${x} ${y.toFixed(1)}`;
+      }
+      return d;
+    }
+    for(let i=0; i<28; i++){
+      const path = document.createElementNS(svgNS, "path");
+      const baseY = i * 95 - 60;
+      const amp = 30 + (i % 5) * 8;
+      const freq = 0.006 + (i % 3) * 0.002;
+      path.setAttribute("d", contourPath(baseY, amp, freq, i*40));
+      path.setAttribute("stroke-width", i % 4 === 0 ? "1.4" : "0.7");
+      svg.appendChild(path);
+    }
+    container.appendChild(svg);
+  })();
+
+  // Scroll reveal
+  (function(){
+    const els = document.querySelectorAll('.reveal');
+    const io = new IntersectionObserver((entries)=>{
+      entries.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('in'); } });
+    }, {threshold:0.15});
+    els.forEach(el=>io.observe(el));
+  })();
+
+  // Hero video: disable on small screens / slow connections, fall back gracefully
+  (function(){
+    const video = document.getElementById('hero-video');
+    const fallback = document.getElementById('hero-fallback');
+    const src = video.querySelector('source').getAttribute('src');
+    const isSmall = window.matchMedia('(max-width: 760px)').matches;
+    const conn = navigator.connection || navigator.webkitConnection || navigator.mozConnection;
+    const isSlow = conn && (conn.saveData || /2g/.test(conn.effectiveType || ''));
+    if(!src || isSmall || isSlow){
+      video.style.display = 'none';
+      fallback.style.display = 'block';
+    }
+    video.addEventListener('error', ()=>{ video.style.display='none'; fallback.style.display='block'; });
+  })();
+
+  // Generative canvases (placeholders — replace panels with real drone stills if you have them)
+  function drawForestCanvas(canvas){
+    const ctx = canvas.getContext('2d');
+    canvas.width = canvas.clientWidth * 2; canvas.height = canvas.clientHeight * 2;
+    const w = canvas.width, h = canvas.height;
+    const g = ctx.createRadialGradient(w*0.3,h*0.3,10,w*0.5,h*0.5,w*0.8);
+    g.addColorStop(0,'#3E5A44'); g.addColorStop(0.5,'#24382B'); g.addColorStop(1,'#131F1B');
+    ctx.fillStyle = g; ctx.fillRect(0,0,w,h);
+    for(let i=0;i<220;i++){
+      const x = Math.random()*w, y = Math.random()*h, r = 6+Math.random()*22;
+      const shade = 40+Math.random()*50;
+      ctx.beginPath();
+      ctx.fillStyle = `rgba(${shade+20},${shade+70},${shade+50},${0.15+Math.random()*0.25})`;
+      ctx.arc(x,y,r,0,Math.PI*2); ctx.fill();
+    }
+    ctx.strokeStyle = 'rgba(201,138,62,0.55)'; ctx.lineWidth = w*0.006; ctx.setLineDash([w*0.012,w*0.01]);
+    ctx.beginPath(); ctx.moveTo(0,h*0.75);
+    ctx.bezierCurveTo(w*0.3,h*0.6, w*0.5,h*0.9, w,h*0.55);
+    ctx.stroke(); ctx.setLineDash([]);
+    ctx.strokeStyle = 'rgba(237,234,224,0.06)'; ctx.lineWidth = 1;
+    for(let x=0;x<w;x+=w/10){ ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,h); ctx.stroke(); }
+    for(let y=0;y<h;y+=h/10){ ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(w,y); ctx.stroke(); }
+  }
+
+  function drawGridCanvas(canvas){
+    const ctx = canvas.getContext('2d');
+    canvas.width = canvas.clientWidth * 2; canvas.height = canvas.clientHeight * 2;
+    const w = canvas.width, h = canvas.height;
+    const g = ctx.createLinearGradient(0,0,w,h);
+    g.addColorStop(0,'#1B2A24'); g.addColorStop(1,'#0C1512');
+    ctx.fillStyle = g; ctx.fillRect(0,0,w,h);
+    ctx.strokeStyle = 'rgba(122,150,134,0.35)'; ctx.lineWidth = 1;
+    const cell = w/14;
+    for(let x=0;x<=w;x+=cell){ ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,h); ctx.stroke(); }
+    for(let y=0;y<=h;y+=cell){ ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(w,y); ctx.stroke(); }
+    ctx.fillStyle = 'rgba(201,138,62,0.5)';
+    const done = [[1,1],[2,1],[1,2],[2,2],[3,1],[1,3],[2,3],[4,1],[3,2]];
+    done.forEach(([cx,cy])=> ctx.fillRect(cx*cell, cy*cell, cell, cell));
+    ctx.fillStyle = 'rgba(237,234,224,0.06)';
+    for(let cx=0;cx<14;cx++){ for(let cy=0;cy<10;cy++){
+      if(!done.some(([a,b])=>a===cx&&b===cy) && Math.random()>0.7){ ctx.fillRect(cx*cell,cy*cell,cell,cell); }
+    }}
+    ctx.strokeStyle = 'rgba(232,174,100,0.7)'; ctx.lineWidth = w*0.004;
+    const cx = w*0.62, cy = h*0.45, r = w*0.05;
+    ctx.beginPath(); ctx.arc(cx,cy,r,0,Math.PI*2); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(cx-r*1.6,cy); ctx.lineTo(cx+r*1.6,cy); ctx.moveTo(cx,cy-r*1.6); ctx.lineTo(cx,cy+r*1.6); ctx.stroke();
+  }
+
+  function drawRawCanvas(canvas){
+    const ctx = canvas.getContext('2d');
+    canvas.width = canvas.clientWidth * 2; canvas.height = canvas.clientHeight * 2;
+    const w = canvas.width, h = canvas.height;
+    const g = ctx.createLinearGradient(0,0,w,h);
+    g.addColorStop(0,'#2A3B30'); g.addColorStop(1,'#16241F');
+    ctx.fillStyle = g; ctx.fillRect(0,0,w,h);
+    for(let i=0;i<160;i++){
+      ctx.beginPath();
+      ctx.fillStyle = `rgba(255,255,255,${Math.random()*0.05})`;
+      ctx.arc(Math.random()*w, Math.random()*h, Math.random()*w*0.03, 0, Math.PI*2);
+      ctx.fill();
+    }
+  }
+
+  function drawProcessedCanvas(canvas){
+    const ctx = canvas.getContext('2d');
+    canvas.width = canvas.clientWidth * 2; canvas.height = canvas.clientHeight * 2;
+    const w = canvas.width, h = canvas.height;
+    ctx.fillStyle = '#101B17'; ctx.fillRect(0,0,w,h);
+    ctx.strokeStyle = 'rgba(122,150,134,0.4)'; ctx.lineWidth = 1;
+    const cell = w/10;
+    for(let x=0;x<=w;x+=cell){ ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,h); ctx.stroke(); }
+    for(let y=0;y<=h;y+=cell){ ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(w,y); ctx.stroke(); }
+    ctx.fillStyle = 'rgba(201,138,62,0.55)';
+    [[2,2],[3,2],[2,3],[6,4],[7,4],[6,5],[7,5]].forEach(([cx,cy])=> ctx.fillRect(cx*cell,cy*cell,cell,cell));
+    ctx.strokeStyle = '#E8AE64'; ctx.lineWidth = w*0.003;
+    ctx.beginPath(); ctx.moveTo(w*0.2,h*0.2); ctx.lineTo(w*0.8,h*0.2); ctx.lineTo(w*0.8,h*0.8); ctx.lineTo(w*0.2,h*0.8); ctx.closePath(); ctx.stroke();
+  }
+
+  window.addEventListener('load', ()=>{
+    ['canvas-forest','canvas-grid'].forEach(id=>{
+      const c = document.getElementById(id);
+      if(!c) return;
+      if(id==='canvas-forest') drawForestCanvas(c); else drawGridCanvas(c);
+    });
+    const cc = document.getElementById('canvas-capture'); if(cc) drawForestCanvas(cc);
+    const cb = document.getElementById('canvas-before'); if(cb) drawRawCanvas(cb);
+    const ca = document.getElementById('canvas-after'); if(ca) drawProcessedCanvas(ca);
+
+    // wipe interaction
+    const wipe = document.getElementById('wipe-panel');
+    const handle = document.getElementById('wipe-handle');
+    const afterLayer = wipe.querySelector('.layer.after');
+    function setWipe(pct){
+      pct = Math.max(4, Math.min(96, pct));
+      afterLayer.style.clipPath = `inset(0 0 0 ${pct}%)`;
+      handle.style.left = pct + '%';
+    }
+    let dragging = false;
+    wipe.addEventListener('pointerdown', ()=>{ dragging = true; });
+    window.addEventListener('pointerup', ()=>{ dragging = false; });
+    window.addEventListener('pointermove', (e)=>{
+      if(!dragging) return;
+      const r = wipe.getBoundingClientRect();
+      setWipe(((e.clientX - r.left) / r.width) * 100);
+    });
+    wipe.addEventListener('mousemove', (e)=>{
+      const r = wipe.getBoundingClientRect();
+      setWipe(((e.clientX - r.left) / r.width) * 100);
+    });
+    // auto demo sweep once on load
+    let t = 0;
+    const auto = setInterval(()=>{ t += 2; setWipe(30 + Math.sin(t/20)*20+20); if(t>140) clearInterval(auto); }, 40);
+  });
+</script>
+
+</body>
+</html>
