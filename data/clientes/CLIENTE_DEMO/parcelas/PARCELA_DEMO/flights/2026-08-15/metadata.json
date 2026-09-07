@@ -1,0 +1,21 @@
+{
+  "flight_id": "2026-08-15",
+  "parcel_id": "PARCELA_DEMO",
+  "client_id": "CLIENTE_DEMO",
+  "date": "2026-08-15",
+  "time": "10:30",
+  "altitude_m": 80,
+  "gsd_cm": 5.0,
+  "camera": "DJI Mavic 3M (demo sintético)",
+  "n_images": 145,
+  "resolution": "5280x3956",
+  "crs": "EPSG:4326",
+  "coverage_pct": 98.5,
+  "processing_params": {
+    "note": "datos sintéticos de demostración"
+  },
+  "pipeline_version": "1.0.0",
+  "processed_at": "2026-09-07T16:17:10.381365",
+  "status": "processed",
+  "status_reason": null
+}

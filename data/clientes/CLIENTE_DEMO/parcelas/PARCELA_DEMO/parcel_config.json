@@ -1,0 +1,14 @@
+{
+  "parcel_id": "PARCELA_DEMO",
+  "client_id": "CLIENTE_DEMO",
+  "name": "Parcela Demo - Cultivo de prueba",
+  "use_case": "agriculture",
+  "sensor_bands": [
+    "R",
+    "G",
+    "B"
+  ],
+  "change_thresholds": {
+    "vari_delta_significant": 0.03
+  }
+}

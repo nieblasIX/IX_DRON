@@ -1,0 +1,15 @@
+# Datos de clientes: potencialmente sensibles, no publicar en repos públicos
+# (ver docs/ARCHITECTURE.md seccion 8). Descomentar si este repo es publico.
+# data/clientes/
+
+__pycache__/
+*.pyc
+.venv/
+venv/
+*.egg-info/
+
+# Archivos de sistema
+.DS_Store
+
+# Artefactos temporales de procesamiento
+*.tmp

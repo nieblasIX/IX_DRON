@@ -1,0 +1,12 @@
+[
+  {
+    "client_id": "CLIENTE_DEMO",
+    "parcel_id": "PARCELA_DEMO",
+    "n_flights": 3
+  },
+  {
+    "client_id": "SAN_AGUSTIN_ZAPOTLAN",
+    "parcel_id": "JOSE",
+    "n_flights": 1
+  }
+]

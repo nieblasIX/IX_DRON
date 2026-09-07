@@ -1,0 +1,15 @@
+{
+  "parcel_id": "JOSE",
+  "client_id": "SAN_AGUSTIN_ZAPOTLAN",
+  "name": "Parcela de José",
+  "use_case": "agriculture",
+  "sensor_bands": ["R", "G", "B"],
+  "raw_flights_root": "C:/Users/Lenovo/Documents/IX_DRON/SAN_AGUSTIN_ZAPOTLAN",
+  "analysis_zone_file": "parcel_siembra_boundary.geojson",
+  "plant_counting": {
+    "enabled": true,
+    "expected_spacing_cm": 30,
+    "vari_threshold": 0.12,
+    "smoothing_sigma_px": 1.0
+  }
+}

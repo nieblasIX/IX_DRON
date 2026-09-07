@@ -1,0 +1,20 @@
+﻿# Respaldos y copias duplicadas
+ixdron_OLD_BACKUP/
+ixdron/web/
+
+# Datos crudos de dron / procesamiento pesado
+data/clientes/**/flights/**/odm/
+data/clientes/**/flights/**/*.tif
+data/clientes/**/flights/**/*.tiff
+data/clientes/**/flights/**/*.laz
+data/clientes/**/flights/**/*.las
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Sistema
+.DS_Store
+Thumbs.db

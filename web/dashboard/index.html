@@ -49,6 +49,8 @@
       <button data-layer="vari">Verdor (VARI)</button>
       <button data-layer="change">Cambio reciente</button>
     </div>
+    <div class="map-legend" id="map-legend"></div>
+    <p class="map-zone-note" id="map-zone-note"></p>
   </section>
 
   <section>
@@ -85,6 +87,68 @@
       <span class="hint">Observación → interpretación → recomendación</span>
     </div>
     <div class="bitacora" id="bitacora"></div>
+  </section>
+
+  <section id="harvest-section" style="display:none;">
+    <div class="section-head">
+      <h2>Estimador de cosecha</h2>
+      <span class="hint">Conteo preliminar y proyección de ingreso</span>
+    </div>
+    <div class="harvest-disclaimer">
+      ⚠️ <strong>Estimación orientativa, no un conteo exacto.</strong>
+      Se calcula a partir de la imagen del dron con un método heurístico
+      preliminar (no un modelo entrenado). Puede sobre o subestimar según la
+      etapa del cultivo y la resolución del vuelo. Úsalo como referencia
+      inicial, no como sustituto de un muestreo en campo.
+    </div>
+
+    <div class="card-grid" id="harvest-cards" style="margin-bottom:1.4rem;"></div>
+
+    <div class="edu-card wide">
+      <h3>Calculadora de proyección (ajustable)</h3>
+      <p>Estos supuestos son los mismos que usaría un agrónomo para una
+      estimación de rendimiento en campo — aquí solo cambia que la población
+      de plantas viene del conteo de la imagen en vez de un conteo manual.
+      Ajusta los valores según tu experiencia con este cultivo.</p>
+
+      <div class="calc-grid">
+        <label>Plantas por hectárea
+          <input type="number" id="calc-plants-ha" step="100">
+        </label>
+        <label>Mazorcas por planta
+          <input type="number" id="calc-ears" step="0.1" value="1">
+        </label>
+        <label>Granos por mazorca
+          <input type="number" id="calc-kernels" step="10" value="500">
+        </label>
+        <label>Peso de mil granos (g)
+          <input type="number" id="calc-pmg" step="5" value="300">
+        </label>
+        <label>Área sembrada (ha)
+          <input type="number" id="calc-area" step="0.01">
+        </label>
+        <label>Precio por tonelada ($)
+          <input type="number" id="calc-price" step="50" placeholder="Ej. 4500">
+        </label>
+      </div>
+
+      <div class="calc-results">
+        <div><span class="edu-tag">Rendimiento estimado</span><strong id="calc-yield-ha">—</strong> ton/ha</div>
+        <div><span class="edu-tag">Producción total</span><strong id="calc-total-prod">—</strong> ton</div>
+        <div><span class="edu-tag">Ingreso estimado</span><strong id="calc-revenue">—</strong></div>
+      </div>
+
+      <div class="calc-actions">
+        <button id="calc-save">Guardar mis valores</button>
+        <button id="calc-reset" class="secondary">Restablecer</button>
+        <span class="calc-saved-note" id="calc-saved-note"></span>
+      </div>
+      <p class="calc-footnote">
+        Tus valores se guardan solo en este navegador (no se envían a
+        ningún servidor). Fórmula: rendimiento (ton/ha) = plantas/ha ×
+        mazorcas/planta × granos/mazorca × peso de mil granos (g) ÷ 1,000,000,000.
+      </p>
+    </div>
   </section>
 
   <section class="tech-only">

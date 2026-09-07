@@ -1,0 +1,147 @@
+{
+  "client_id": "SAN_AGUSTIN_ZAPOTLAN",
+  "parcel_id": "JOSE",
+  "parcel_name": "Parcela de JosÃ©",
+  "use_case": "agriculture",
+  "data_maturity": "baseline",
+  "n_flights": 1,
+  "has_separate_analysis_zone": true,
+  "flights": [
+    {
+      "flight_id": "2026-09-03",
+      "date": "2026-09-03",
+      "status": "baseline",
+      "vari_mean": 0.02370794489979744,
+      "vari_median": 0.008064515888690948,
+      "vari_display_range": [
+        -0.224,
+        0.4583
+      ],
+      "change_display_range": [
+        -0.2,
+        0.2
+      ],
+      "vegetation_cover_pct": 35.72592458134754,
+      "valid_area_pct": 35.66613184674473,
+      "analysis_area_ha": 0.355,
+      "used_analysis_zone_file": "parcel_siembra_boundary.geojson",
+      "bounds_4326": {
+        "minx": -98.71761458976674,
+        "miny": 19.876731364846464,
+        "maxx": -98.7166454329181,
+        "maxy": 19.877621481572177
+      },
+      "change": null,
+      "recommendations": [],
+      "warnings": [],
+      "pipeline_version": "1.0.0",
+      "indices_extra": {
+        "exg": {
+          "mean": 0.024991236627101898,
+          "median": 0.0
+        },
+        "gli": {
+          "mean": 0.07018719613552094,
+          "median": 0.055670104920864105
+        }
+      },
+      "dsm_available": true,
+      "camera": "dji fc3170 4000 3000 brown 0.6666",
+      "n_images": 74,
+      "gsd_cm": 5.0,
+      "crs": "EPSG:32614",
+      "plant_counting": {
+        "plant_count_estimate": 6191,
+        "method": "heuristic_local_maxima_v1",
+        "params": {
+          "expected_spacing_cm": 30,
+          "vari_threshold": 0.12,
+          "smoothing_sigma_px": 1.0,
+          "min_distance_px": 6,
+          "pixel_size_m_used": 0.05
+        },
+        "confidence_note": "Estimación preliminar por heurística de imagen, no un conteo exacto. Puede sobreestimar cuando el dosel se cierra entre plantas vecinas, y subestimar con resolución (GSD) gruesa. Se recomienda calibrar contra un conteo manual en al menos una zona de muestra antes de usarlo para decisiones."
+      },
+      "previews": {
+        "rgb": "previews/2026-09-03_rgb_preview.png",
+        "vari": "previews/2026-09-03_vari_preview.png"
+      }
+    }
+  ],
+  "monthly_summary": [
+    {
+      "period": "2026-09",
+      "n_flights": 1,
+      "vari_mean_avg": 0.02370794489979744,
+      "first_date": "2026-09-03",
+      "last_date": "2026-09-03"
+    }
+  ],
+  "yearly_summary": [
+    {
+      "year": 2026,
+      "n_flights": 1,
+      "vari_mean_avg": 0.02370794489979744
+    }
+  ],
+  "latest": {
+    "flight_id": "2026-09-03",
+    "date": "2026-09-03",
+    "status": "baseline",
+    "vari_mean": 0.02370794489979744,
+    "vari_median": 0.008064515888690948,
+    "vari_display_range": [
+      -0.224,
+      0.4583
+    ],
+    "change_display_range": [
+      -0.2,
+      0.2
+    ],
+    "vegetation_cover_pct": 35.72592458134754,
+    "valid_area_pct": 35.66613184674473,
+    "analysis_area_ha": 0.355,
+    "used_analysis_zone_file": "parcel_siembra_boundary.geojson",
+    "bounds_4326": {
+      "minx": -98.71761458976674,
+      "miny": 19.876731364846464,
+      "maxx": -98.7166454329181,
+      "maxy": 19.877621481572177
+    },
+    "change": null,
+    "recommendations": [],
+    "warnings": [],
+    "pipeline_version": "1.0.0",
+    "indices_extra": {
+      "exg": {
+        "mean": 0.024991236627101898,
+        "median": 0.0
+      },
+      "gli": {
+        "mean": 0.07018719613552094,
+        "median": 0.055670104920864105
+      }
+    },
+    "dsm_available": true,
+    "camera": "dji fc3170 4000 3000 brown 0.6666",
+    "n_images": 74,
+    "gsd_cm": 5.0,
+    "crs": "EPSG:32614",
+    "plant_counting": {
+      "plant_count_estimate": 6191,
+      "method": "heuristic_local_maxima_v1",
+      "params": {
+        "expected_spacing_cm": 30,
+        "vari_threshold": 0.12,
+        "smoothing_sigma_px": 1.0,
+        "min_distance_px": 6,
+        "pixel_size_m_used": 0.05
+      },
+      "confidence_note": "Estimación preliminar por heurística de imagen, no un conteo exacto. Puede sobreestimar cuando el dosel se cierra entre plantas vecinas, y subestimar con resolución (GSD) gruesa. Se recomienda calibrar contra un conteo manual en al menos una zona de muestra antes de usarlo para decisiones."
+    },
+    "previews": {
+      "rgb": "previews/2026-09-03_rgb_preview.png",
+      "vari": "previews/2026-09-03_vari_preview.png"
+    }
+  }
+}

@@ -1,0 +1,45 @@
+{
+  "flight_id": "2026-08-01",
+  "date": "2026-08-01",
+  "status": "baseline",
+  "vari_mean": 0.3043263256549835,
+  "vari_median": 0.31213873624801636,
+  "vari_display_range": [
+    0.0798,
+    0.4839
+  ],
+  "change_display_range": [
+    -0.2,
+    0.2
+  ],
+  "vegetation_cover_pct": 98.97083333333333,
+  "valid_area_pct": 100.0,
+  "analysis_area_ha": 0.027,
+  "used_analysis_zone_file": null,
+  "bounds_4326": {
+    "minx": -99.63,
+    "miny": 19.289864864864864,
+    "maxx": -99.62981981981982,
+    "maxy": 19.29
+  },
+  "change": null,
+  "recommendations": [],
+  "warnings": [],
+  "pipeline_version": "1.0.0",
+  "indices_extra": {
+    "exg": {
+      "mean": 0.4684602916240692,
+      "median": 0.47058823704719543
+    },
+    "gli": {
+      "mean": 0.2678760290145874,
+      "median": 0.2735426127910614
+    }
+  },
+  "dsm_available": false,
+  "camera": "DJI Mavic 3M (demo sintético)",
+  "n_images": 145,
+  "gsd_cm": 5.0,
+  "crs": "EPSG:4326",
+  "plant_counting": null
+}

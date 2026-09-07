@@ -1,0 +1,66 @@
+{
+  "flight_id": "2026-08-29",
+  "date": "2026-08-29",
+  "status": "processed",
+  "vari_mean": 0.20150476694107056,
+  "vari_median": 0.22697210311889648,
+  "vari_display_range": [
+    -0.2135,
+    0.4643
+  ],
+  "change_display_range": [
+    -0.2,
+    0.2
+  ],
+  "vegetation_cover_pct": 82.57166666666666,
+  "valid_area_pct": 100.0,
+  "analysis_area_ha": 0.027,
+  "used_analysis_zone_file": null,
+  "bounds_4326": {
+    "minx": -99.63,
+    "miny": 19.289864864864864,
+    "maxx": -99.62981981981982,
+    "maxy": 19.29
+  },
+  "change": {
+    "flight_id_current": "2026-08-29",
+    "flight_id_previous": "2026-08-15",
+    "comparison_type": "sequential",
+    "index_name": "vari",
+    "mean_delta": -0.07867083698511124,
+    "pct_area_increase": 20.39,
+    "pct_area_stable": 17.47833333333334,
+    "pct_area_decrease": 62.13166666666666,
+    "threshold_used": 0.03,
+    "change_raster_path": null,
+    "warnings": []
+  },
+  "recommendations": [
+    {
+      "flight_id": "2026-08-29",
+      "rule_id": "significant_decrease_concentrated",
+      "observation": "Se detectó disminución del índice de verdor (VARI) en aproximadamente 62.1% del área analizada respecto al vuelo anterior.",
+      "interpretation": "Este cambio puede corresponder a variación de cobertura vegetal, condiciones de iluminación al momento del vuelo, manejo agronómico reciente u otras causas no distinguibles únicamente con imágenes RGB.",
+      "recommendation": "Se recomienda inspección de campo en las zonas señaladas para determinar la causa.",
+      "severity": "attention"
+    }
+  ],
+  "warnings": [],
+  "pipeline_version": "1.0.0",
+  "indices_extra": {
+    "exg": {
+      "mean": 0.3312259912490845,
+      "median": 0.3294117748737335
+    },
+    "gli": {
+      "mean": 0.19655565917491913,
+      "median": 0.20930232107639313
+    }
+  },
+  "dsm_available": false,
+  "camera": "DJI Mavic 3M (demo sintÃ©tico)",
+  "n_images": 145,
+  "gsd_cm": 5.0,
+  "crs": "EPSG:4326",
+  "plant_counting": null
+}
